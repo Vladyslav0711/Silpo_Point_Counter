@@ -35,8 +35,10 @@ public class CheckoutService {
     }
 
     private void useOffer(Offer offer) {
-        if (check != null)
-            offer.apply(check);
+        if (check != null){
+            if(offer.checkTerm())
+                offer.apply(check);
+        }
     }
 }
 

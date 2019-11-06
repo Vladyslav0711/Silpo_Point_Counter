@@ -2,6 +2,8 @@ import checkout.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -62,7 +64,7 @@ public class CheckoutServiceTest {
         checkoutService.addProduct(milk_7);
         checkoutService.addProduct(bred_3);
 
-        checkoutService.addOffer(new AnyGoodsOffer(6, 2));
+        checkoutService.addOffer(new AnyGoodsOffer(6, 2, LocalDate.of(2020, 12, 3)));
         Check check = checkoutService.closeCheck();
 
         assertThat(check.getTotalPoints(), is(12));
@@ -70,7 +72,7 @@ public class CheckoutServiceTest {
     @Test
     void useOffer__beforeClosingCheck(){
         checkoutService.addProduct(bred_3);
-        checkoutService.addOffer(new AnyGoodsOffer(6, 2));
+        checkoutService.addOffer(new AnyGoodsOffer(6, 2,LocalDate.of(2020, 12, 3)));
         checkoutService.addProduct(milk_7);
         Check check = checkoutService.closeCheck();
         assertThat(check.getTotalPoints(), is(12));
@@ -79,11 +81,18 @@ public class CheckoutServiceTest {
     @Test
     void useOffer__whenCostLessThanRequired__doNothing() {
         checkoutService.addProduct(bred_3);
-
-        checkoutService.addOffer(new AnyGoodsOffer(6, 2));
+        checkoutService.addOffer(new AnyGoodsOffer(6, 2,LocalDate.of(2020, 12, 3)));
         Check check = checkoutService.closeCheck();
 
         assertThat(check.getTotalPoints(), is(3));
+    }
+    @Test
+    void check__offerTerm(){
+        checkoutService.addProduct(milk_7);
+        checkoutService.addOffer(new AnyGoodsOffer(6, 2,LocalDate.of(2018, 12, 3)));
+        Check check = checkoutService.closeCheck();
+
+        assertThat(check.getTotalPoints(), is(7));
     }
 
     @Test
@@ -92,7 +101,7 @@ public class CheckoutServiceTest {
         checkoutService.addProduct(milk_7);
         checkoutService.addProduct(bred_3);
 
-        checkoutService.addOffer(new FactorByCategoryOffer(Category.MILK, 2));
+        checkoutService.addOffer(new FactorByCategoryOffer(Category.MILK, 2, LocalDate.of(2020, 12, 3)));
         Check check = checkoutService.closeCheck();
 
         assertThat(check.getTotalPoints(), is(31));
