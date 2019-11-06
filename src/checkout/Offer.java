@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public abstract class Offer {
     private LocalDate date;
     public abstract void apply(Check check);
-    public void setDate(LocalDate date){
+    public Offer(LocalDate date){
         this.date = date;
     }
 
