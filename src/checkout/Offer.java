@@ -10,7 +10,7 @@ public abstract class Offer {
     }
 
     public boolean checkTerm(){
-        if((LocalDate.now()).compareTo(this.date)<0){
+        if((LocalDate.now().plusDays(1)).compareTo(this.date)<0){
             return true;
         }
         else return false;
