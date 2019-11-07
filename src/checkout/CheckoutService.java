@@ -7,12 +7,14 @@ public class CheckoutService {
     private Check check;
     private List<Offer> offers = new ArrayList<>();
 
-    public void addOffer(Offer offer){
+    public void addOffer(Offer offer) {
         offers.add(offer);
     }
-    public void deleteOffer(Offer offer){
+
+    public void deleteOffer(Offer offer) {
         offers.remove(offer);
     }
+
     public void openCheck() {
         check = new Check();
     }
@@ -26,18 +28,17 @@ public class CheckoutService {
 
     public Check closeCheck() {
         Check closedCheck = check;
-        for(Offer offer : offers){
+        for (Offer offer : offers) {
             useOffer(offer);
-           // deleteOffer(offer);
+            // deleteOffer(offer);
         }
         check = null;
         return closedCheck;
     }
 
     private void useOffer(Offer offer) {
-        if (check != null){
-            if(offer.checkTerm())
-                offer.apply(check);
+        if (check != null) {
+            offer.apply(check);
         }
     }
 }
