@@ -12,6 +12,8 @@ public class CheckoutServiceTest {
     private Product milk_7;
     private CheckoutService checkoutService;
     private Product bred_3;
+    private LocalDate dayBefore;
+    private LocalDate dayAfter;
 
     @BeforeEach
     void setUp() {
@@ -20,6 +22,8 @@ public class CheckoutServiceTest {
 
         milk_7 = new Product(7, "Milk", Category.MILK);
         bred_3 = new Product(3, "Bred");
+        dayBefore = LocalDate.now().minusDays(1);
+        dayAfter= LocalDate.now().plusDays(1);
     }
 
     @Test
@@ -63,8 +67,7 @@ public class CheckoutServiceTest {
     void useOffer__addOfferPoints() {
         checkoutService.addProduct(milk_7);
         checkoutService.addProduct(bred_3);
-
-        checkoutService.addOffer(new AnyGoodsOffer(6, 2, LocalDate.of(2020, 12, 3)));
+        checkoutService.addOffer(new BonusOffer(dayAfter, new TotalCost(6), new Flat(2)));
         Check check = checkoutService.closeCheck();
 
         assertThat(check.getTotalPoints(), is(12));
@@ -72,7 +75,7 @@ public class CheckoutServiceTest {
     @Test
     void useOffer__beforeClosingCheck(){
         checkoutService.addProduct(bred_3);
-        checkoutService.addOffer(new AnyGoodsOffer(6, 2,LocalDate.of(2020, 12, 3)));
+        checkoutService.addOffer(new BonusOffer(dayAfter, new TotalCost(6), new Flat(2)));
         checkoutService.addProduct(milk_7);
         Check check = checkoutService.closeCheck();
         assertThat(check.getTotalPoints(), is(12));
@@ -81,18 +84,26 @@ public class CheckoutServiceTest {
     @Test
     void useOffer__whenCostLessThanRequired__doNothing() {
         checkoutService.addProduct(bred_3);
-        checkoutService.addOffer(new AnyGoodsOffer(6, 2,LocalDate.of(2020, 12, 3)));
+        checkoutService.addOffer(new BonusOffer(dayAfter, new TotalCost(6), new Flat(2)));
         Check check = checkoutService.closeCheck();
 
         assertThat(check.getTotalPoints(), is(3));
     }
     @Test
-    void check__offerTerm(){
+    void check__offerTerm__whenOverdue(){
         checkoutService.addProduct(milk_7);
-        checkoutService.addOffer(new AnyGoodsOffer(6, 2,LocalDate.of(2018, 12, 3)));
+       // checkoutService.addOffer(new AnyGoodsOffer(6, 2,dayBefore));
         Check check = checkoutService.closeCheck();
 
         assertThat(check.getTotalPoints(), is(7));
+    }
+    @Test
+    void check__offerTerm__whenFresh(){
+        checkoutService.addProduct(milk_7);
+        checkoutService.addOffer(new BonusOffer(dayAfter, new TotalCost(6), new Flat(2)));
+        Check check = checkoutService.closeCheck();
+
+        assertThat(check.getTotalPoints(), is(9));
     }
 
     @Test
@@ -100,10 +111,30 @@ public class CheckoutServiceTest {
         checkoutService.addProduct(milk_7);
         checkoutService.addProduct(milk_7);
         checkoutService.addProduct(bred_3);
-
-        checkoutService.addOffer(new FactorByCategoryOffer(Category.MILK, 2, LocalDate.of(2020, 12, 3)));
+        checkoutService.addOffer(new BonusOffer(dayAfter, new ByCategory(), new Factor(2, Category.MILK)));
+        //checkoutService.addOffer(new FactorByCategoryOffer(Category.MILK, 2, dayAfter));
         Check check = checkoutService.closeCheck();
 
         assertThat(check.getTotalPoints(), is(31));
     }
+
+    @Test
+    void useOffer_DiscountOffer(){
+        checkoutService.addProduct(milk_7);
+        checkoutService.addOffer(new DiscountOffer(dayAfter, new ByCategory(), new Percent(50)));
+        Check check = checkoutService.closeCheck();
+        assertThat(check.getTotalCost(50), is(4));
+    }
+
+//    @Test
+//    void useOffer_productDiscount(){
+//        checkoutService.addProduct(milk_7);
+//        checkoutService.addProduct(milk_7);
+//        checkoutService.addProduct(bred_3);
+//
+//       // checkoutService.addOffer(new ProductDiscountOffer(milk_7), dayAfter);
+//        Check check = checkoutService.closeCheck();
+//
+//        assertThat(check.getTotalPoints(), is(3));
+//    }
 }

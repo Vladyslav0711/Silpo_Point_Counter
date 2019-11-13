@@ -4,24 +4,32 @@ import java.time.LocalDate;
 
 public abstract class Offer {
     private LocalDate date;
-    protected int points;
-    public void apply(Check check){
-        if(checkTerm()){
-            if(isAllowed(check)){
-                getPoints(check);
-                addPoints(points, check);
+    private Condition condition;
+    protected Reward reward;
+    protected DiscountRules discountRules;
+
+    public void apply(Check check) {
+        condition.isAllowed(check);
+        if (checkTerm()) {
+            if (condition.isAllowed(check)) {
+                chooseOffer(check);
             }
         }
     }
 
-    public Offer(LocalDate date) {
+    public abstract void chooseOffer(Check check);
+
+    public Offer(LocalDate date, Condition condition, Reward reward) {
         this.date = date;
+        this.condition = condition;
+        this.reward = reward;
     }
-    private void addPoints(int points, Check check){
-        check.addPoints(points);
+    public Offer(LocalDate date, Condition condition, DiscountRules discountRules) {
+        this.date = date;
+        this.condition = condition;
+        this.discountRules = discountRules;
     }
-    protected abstract void getPoints(Check check);
-    protected abstract boolean isAllowed(Check check);
+
 
     private boolean checkTerm() {
         return LocalDate.now().isBefore(this.date);

@@ -14,6 +14,13 @@ public class Check {
         }
         return totalCost;
     }
+    public int getTotalCost(int discount){
+        int totalCost = 0;
+        for (Product product : this.products) {
+            totalCost += product.price;
+        }
+        return totalCost - totalCost*discount/100;
+    }
 
     void addProduct(Product product) {
         products.add(product);
